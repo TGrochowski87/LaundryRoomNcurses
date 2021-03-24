@@ -1,6 +1,6 @@
 #include "Room.h"
 
-#include <iostream>
+#include <string>
 
 #include "Equipment.h"
 #include "WashingMachine.h"
@@ -27,7 +27,7 @@ void Room::initializeRoom(int amountOfClients, int amountOfMachines, int amountO
 	}
 	for (int i = 0; i < amountOfRacks; i++)
 	{
-		Equipment::getDryingRacks().push_back(new DryingRack(47, 2 + i*2));
+		Equipment::getDryingRacks().push_back(new DryingRack(win, 47, 2 + i*2));
 	}
 	for (int i = 0; i < amountOfMachines; i++)
 	{
@@ -62,47 +62,15 @@ void Room::runSimulation()
 	}
 
 	showStatusThread = std::make_unique<std::thread>([this]() {
-		// initscr();
-		// noecho();
-
-		int machnieCount = Equipment::getWashingMachines().size();
-		int rackCount = Equipment::getDryingRacks().size();
-		int clientCount = this->clients.size();
-
-		int x = ((machnieCount > rackCount) ? machnieCount : rackCount) > clientCount ? (machnieCount > rackCount) ? machnieCount : rackCount : clientCount;
-		x = x*2 + 3;
-		int y = 50;
-
-		//WINDOW* win = newwin(x, y, 1, 1);
 		refresh();
 
 		box(this->win, 0, 0);
 
-		// for(int i = 0; i < machnieCount; i++)
-		// {
-		// 	mvwprintw(this->win, 2 + i*2, 4, "M");
-		// }
-		for(int i = 0; i < rackCount; i++)
-		{
-			mvwprintw(this->win, 2 + i*2, 47, "R");
-		}
-		//mvwprintw(win, 1, 2, "S");
-
-		for(int i = 0; i < clientCount; i++)
-		{
-			mvwprintw(this->win, 2 + i*2, 24, "C");
-		}
-
-		// init_pair(1, COLOR_YELLOW, COLOR_BLACK);
-    	// wattron(win, COLOR_PAIR(1));
-    	// mvwaddch(win, 10, 25, 'M');
-    	// wattroff(win, COLOR_PAIR(1));
-
 		wrefresh(this->win);
 
-		//mvwprintw(win, 10, 20, "S");
-		//refresh();
-		//wrefresh(win);
+		init_pair(1, COLOR_GREEN, COLOR_BLACK);
+    	init_pair(2, COLOR_YELLOW, COLOR_BLACK);
+    	init_pair(3, COLOR_RED, COLOR_BLACK);
 
 		while (roomIsOpen.load())
 		{
@@ -111,17 +79,17 @@ void Room::runSimulation()
 			{
 				m->display();
 			}
+			for(DryingRack* r : Equipment::getDryingRacks())
+			{
+				r->display();
+			}
+			for(Client* c : this->clients)
+			{
+				c->display();
+			}
 
 			
 			wrefresh(this->win);
-
-			// for (Client* c : clients)
-			// {
-			// 	std::cout << c->getStatus() << std::endl;
-			// }
-			// std::cout << std::endl;
-			// std::cout << serviceWorker->getStatus() << std::endl;
-			// std::cout << "\n------------------------------------------" << std::endl;
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
@@ -132,23 +100,22 @@ void Room::endSimulation()
 {
 	for (Client* c : clients)
 	{
-		//std::cout << "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY " << c->getId() << std::endl;
 		c->stop();
-		//std::cout << "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" << std::endl;
 	}
 	serviceWorker->stop();
 	roomIsOpen = false;
 	showStatusThread->join();
 
-	for (Client* c : clients)
+	wclear(win);
+	endwin();
+
+	for(int i = 0; i < clients.size(); i++)
 	{
-		std::cout << std::endl;
-		std::cout << "-----------------------------------------------" << std::endl;
-		std::cout << "Client " << c->getId() << ":" << std::endl;
-		std::cout << "Has done laundry " << c->getLaundryCounter() << " times." << std::endl;
-		std::cout << "Was waiting for " << c->getWaitingTime() << " seconds." << std::endl;
-		delete c;
+		std::string notification = "Client " + std::to_string(clients.at(i)->getId()) + " has done their laundry " + std::to_string(clients.at(i)->getLaundryCounter()) + " times.";
+		printf("%s\n", notification.c_str());
+		delete clients.at(i);
 	}
+	
 	delete serviceWorker;
 
 	for (WashingMachine* m : Equipment::getWashingMachines())

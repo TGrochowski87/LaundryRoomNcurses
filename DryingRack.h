@@ -1,10 +1,11 @@
 #pragma once
 #include <mutex>
+#include <ncurses.h>
 
 class DryingRack
 {
 public:
-	DryingRack(int, int);
+	DryingRack(WINDOW*, int, int);
 
 	bool useIfAvailable();
 	void setAvailability(bool);
@@ -12,10 +13,10 @@ public:
 	int getX();
 	int getY();
 
-	void setX(int);
-	void setY(int);
+	void display();
 
 private:
+	WINDOW* window;
 	int id;
 	int x;
 	int y;

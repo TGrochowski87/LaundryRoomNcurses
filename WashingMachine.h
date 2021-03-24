@@ -12,13 +12,10 @@ public:
 	int getX();
 	int getY();
 
-	void setX(int);
-	void setY(int);
-
 	void display();
 
-	bool useIfAvailable(int);
-	void setAvailability(bool, int);
+	bool useIfAvailable();
+	void setAvailability(bool);
 
 	void repairMachine();
 	void setFunctional(bool);

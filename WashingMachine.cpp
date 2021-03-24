@@ -1,7 +1,6 @@
 #include "WashingMachine.h"
 
 #include <chrono>
-#include <iostream>
 #include <string>
 #include <thread>
 
@@ -23,23 +22,8 @@ int WashingMachine::getY()
 	return this->y;
 }
 
-void WashingMachine::setX(int x)
-{
-	this->x = x;
-}
-
-void WashingMachine::setY(int y)
-{
-	this->y = y;
-}
-
 void WashingMachine::display()
 {
-    //start_color();
-    init_pair(1, COLOR_GREEN, COLOR_BLACK);
-    init_pair(2, COLOR_YELLOW, COLOR_BLACK);
-    init_pair(3, COLOR_RED, COLOR_BLACK);
-
     if(this->functional && this->available)
     {
         wattron(window, COLOR_PAIR(1));
@@ -60,16 +44,12 @@ void WashingMachine::display()
     }
 }
 
-bool WashingMachine::useIfAvailable(int id)
+bool WashingMachine::useIfAvailable()
 {
-    //std::cout << std::to_string(id) << " " << __FUNCSIG__ << " 1" << std::endl;
     std::unique_lock<std::mutex> lock(mtx);
     if (available) {
         this->available = false;
-        //std::cout << std::to_string(id) << " " << __FUNCSIG__ << " 2" << std::endl;
-        //std::cout << "functional = " << functional.load() << std::endl;
         cv.wait(lock, [this]() {return isFunctional(); });
-        //std::cout << std::to_string(id) << " " << __FUNCSIG__ << " 3" << std::endl;
         return true;
     }
     else {
@@ -77,25 +57,21 @@ bool WashingMachine::useIfAvailable(int id)
     }
 }
 
-void WashingMachine::setAvailability(bool set, int id)
+void WashingMachine::setAvailability(bool set)
 {
-    //std::cout << std::to_string(id) << " " << __FUNCSIG__ << std::endl;
     std::lock_guard<std::mutex> lock(mtx);
     this->available = set;
 }
 
 void WashingMachine::repairMachine()
 {
-    //std::cout << __FUNCSIG__ << std::endl;
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     setFunctional(true);
     cv.notify_one();
 }
 
 void WashingMachine::setFunctional(bool set)
 {
-    //std::cout << __FUNCSIG__ << std::endl;
-    //std::lock_guard<std::mutex> lock(mtx);
     this->functional = set;
 }
 

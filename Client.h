@@ -16,17 +16,11 @@ public:
 	Client(WINDOW*, int, int, int, int, int);
 
 	int getId();
-	
-	int getX();
-	int getY();
-
-	void setX(int);
-	void setY(int);
 
 	void display();
 	void move(int, int);
 
-	float getWaitingTime();
+	float getWaitingTime(); //unused
 	int getLaundryCounter();
 
 	void start();
@@ -52,9 +46,8 @@ private:
 	int id;
 	int x;
 	int y;
-
-	bool isUsingWashingMachine = false;
-	bool isUsingDryingRack = false;
+	const int initX;
+	const int initY;
 
 	int occupiedId = 0;
 

@@ -10,12 +10,6 @@ class ServiceWorker
 public:
 	ServiceWorker(WINDOW*, int, int);
 
-	int getX();
-	int getY();
-
-	void setX(int);
-	void setY(int);
-
 	void display();
 	void move(int, int);
 	
@@ -23,8 +17,6 @@ public:
 	void stop();
 
 	void act();
-
-	std::string getStatus();
 
 	void searchForBrokenMachines();
 
@@ -42,9 +34,7 @@ private:
 
 	float waitingTime = 0.0f;
 
-	std::string status = "";
-
-	std::atomic_bool isWorking; //{true};
+	std::atomic_bool isWorking;
 
 	std::unique_ptr<std::thread> lifeThread;
 };

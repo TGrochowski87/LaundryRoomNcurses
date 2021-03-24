@@ -1,7 +1,8 @@
 #include "DryingRack.h"
 
-DryingRack::DryingRack(int x, int y)
+DryingRack::DryingRack(WINDOW* win, int x, int y)
 {
+	this->window = win;
 	this->x = x;
 	this->y = y;
 }
@@ -16,14 +17,20 @@ int DryingRack::getY()
 	return this->y;
 }
 
-void DryingRack::setX(int x)
+void DryingRack::display()
 {
-	this->x = x;
-}
-
-void DryingRack::setY(int y)
-{
-	this->y = y;
+    if(this->available)
+    {
+        wattron(window, COLOR_PAIR(1));
+        mvwaddch(window, y, x, 'R');
+        wattroff(window, COLOR_PAIR(1));
+    }
+    else
+    {
+        wattron(window, COLOR_PAIR(3));
+        mvwaddch(window, y, x, 'R');
+        wattroff(window, COLOR_PAIR(3));
+    }
 }
 
 bool DryingRack::useIfAvailable()

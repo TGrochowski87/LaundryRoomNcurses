@@ -1,7 +1,6 @@
 #include "Client.h"
 
 #include <chrono>
-#include <iostream>
 #include <pthread.h>
 
 #include "Equipment.h"
@@ -9,6 +8,8 @@
 Client::Client(WINDOW* win, int laundryTime, int dryingTime, int id, int x, int y)
 	: isDoingLaundry{true}
 	, laundryStatus{LaundryStatus::dirty}
+	, initX{x}
+	, initY{y}
 {
 	this->laundryTime = laundryTime + (rand() % 41 - 20) * laundryTime / 100;
 	this->dryingTime = dryingTime + (rand() % 41 - 20) * dryingTime / 100;
@@ -24,29 +25,9 @@ int Client::getId()
 	return id;
 }
 
-int Client::getX()
-{
-	return this->x;
-}
-
-int Client::getY()
-{
-	return this->y;
-}
-
-void Client::setX(int x)
-{
-	this->x = x;
-}
-
-void Client::setY(int y)
-{
-	this->y = y;
-}
-
 void Client::display()
 {
-	mvwaddch(window, y, x, 'S');
+	mvwaddch(window, y, x, 'C');
 }
 
 void Client::move(int newX, int newY)
@@ -81,24 +62,20 @@ void Client::act()
 {
 	while (this->isDoingLaundry.load())
 	{
-		//std::cout << std::to_string(id) << " " << __FUNCSIG__ << std::endl;
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 		if (this->laundryStatus == LaundryStatus::dirty)
 		{
 			if (searchForFreeMachine())
 			{
-				//std::cout << "11111111111111111111111111111111111111111111111111111111111" << std::endl;
 				this->status = "Client " + std::to_string(id) + " is using washing mashine " + std::to_string(occupiedId);
 				useWashingMachine();
-				//std::cout << "22222222222222222222222222222222222222222222222222222222222" << std::endl;
 			}
 			else
 			{
 				this->status = "Client " + std::to_string(id) + " is waiting for washing machine";
 				this->waitingTime += 0.1;
 			}
-			//std::cout << "STATUS = " << this->isDoingLaundry.load() << std::endl;
 		}
 		else if (this->laundryStatus == LaundryStatus::wet)
 		{
@@ -115,7 +92,6 @@ void Client::act()
 		}
 		else
 		{
-			//std::cout << "33333333333333333333333333333333333333333333333333333333333333" << std::endl;
 			laundryCounter++;
 			this->status = "Client " + std::to_string(id) + " is getting their clothes dirty again";
 			getClothesDirty();
@@ -130,7 +106,6 @@ std::string Client::getStatus()
 
 void Client::useWashingMachine()
 {
-	//std::cout << std::to_string(id) << " " << __FUNCSIG__ << std::endl;
 	std::this_thread::sleep_for(std::chrono::milliseconds(laundryTime));
 
 	if (rand() % 101 > 80)
@@ -145,7 +120,6 @@ void Client::useWashingMachine()
 
 void Client::useDryingRack()
 {
-	//std::cout << std::to_string(id) << " " << __FUNCSIG__ << std::endl;
 	std::this_thread::sleep_for(std::chrono::milliseconds(dryingTime));
 	laundryStatus = LaundryStatus::clean;
 	freeRack();
@@ -155,35 +129,36 @@ void Client::useDryingRack()
 
 void Client::getClothesDirty()
 {
-	//std::cout << std::to_string(id) << " " << __FUNCSIG__ << std::endl;
 	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	laundryStatus = LaundryStatus::dirty;
 	this->status = "Client " + std::to_string(id) + " goes to laundry room";
-	//std::cout << "SDGDRSHGDSFHGDZ" << std::endl;
 }
 
 void Client::freeMachine()
 {
-	//std::cout << std::to_string(id) << " " << __FUNCSIG__ << std::endl;
-	Equipment::getWashingMachines().at(occupiedId)->setAvailability(true, id);
+	Equipment::getWashingMachines().at(occupiedId)->setAvailability(true);
+	move(initX, initY);
 	occupiedId = 0;
 }
 
 void Client::freeRack()
 {
-	//std::cout << std::to_string(id) << " " << __FUNCSIG__ << std::endl;
 	Equipment::getDryingRacks().at(occupiedId)->setAvailability(true);
+	move(initX, initY);
 	occupiedId = 0;
 }
 
 bool Client::searchForFreeMachine()
 {
-	//std::cout << std::to_string(id) << " " << __FUNCSIG__ << std::endl;
 	for (int i = 0; i < Equipment::getWashingMachines().size(); i++)
 	{
-		if (Equipment::getWashingMachines().at(i)->useIfAvailable(id))
+		if (Equipment::getWashingMachines().at(i)->useIfAvailable())
 		{
 			occupiedId = i;
+
+			int machineX = Equipment::getWashingMachines().at(occupiedId)->getX();
+			int machineY = Equipment::getWashingMachines().at(occupiedId)->getY();
+			move(machineX + 1, machineY);
 			return true;
 		}
 	}
@@ -192,12 +167,15 @@ bool Client::searchForFreeMachine()
 
 bool Client::searchForFreeRack()
 {
-	//std::cout << std::to_string(id) << " " << __FUNCSIG__ << std::endl;
 	for (int i = 0; i < Equipment::getDryingRacks().size(); i++)
 	{
 		if (Equipment::getDryingRacks().at(i)->useIfAvailable())
 		{
 			occupiedId = i;
+
+			int rackX = Equipment::getDryingRacks().at(occupiedId)->getX();
+			int rackY = Equipment::getDryingRacks().at(occupiedId)->getY();
+			move(rackX - 1, rackY);
 			return true;
 		}
 	}

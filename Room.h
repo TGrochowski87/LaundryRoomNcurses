@@ -1,7 +1,6 @@
 #pragma once
 #include <atomic>
 #include <vector>
-#include <algorithm>
 #include <thread>
 #include <ncurses.h>
 
