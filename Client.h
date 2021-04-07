@@ -20,15 +20,13 @@ public:
 	void display();
 	void move(int, int);
 
-	float getWaitingTime(); //unused
+	//float getWaitingTime();
 	int getLaundryCounter();
 
 	void start();
 	void stop();
 
 	void act();
-
-	std::string getStatus();
 	
 	bool searchForFreeMachine();
 	bool searchForFreeRack();
@@ -54,12 +52,10 @@ private:
 	int laundryTime;
 	int dryingTime;
 
-	float waitingTime = 0.0f;
+	//float waitingTime = 0.0f;
 	int laundryCounter = 0;
 
 	std::atomic_bool isDoingLaundry;
-
-	std::string status = "";
 
 	std::atomic<LaundryStatus> laundryStatus;
 

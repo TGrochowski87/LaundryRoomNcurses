@@ -37,10 +37,10 @@ void Client::move(int newX, int newY)
 	y = newY;
 }
 
-float Client::getWaitingTime()
-{
-	return waitingTime;
-}
+// float Client::getWaitingTime()
+// {
+// 	return waitingTime;
+// }
 
 int Client::getLaundryCounter()
 {
@@ -68,40 +68,30 @@ void Client::act()
 		{
 			if (searchForFreeMachine())
 			{
-				this->status = "Client " + std::to_string(id) + " is using washing mashine " + std::to_string(occupiedId);
 				useWashingMachine();
 			}
-			else
-			{
-				this->status = "Client " + std::to_string(id) + " is waiting for washing machine";
-				this->waitingTime += 0.1;
-			}
+			// else
+			// {
+			// 	this->waitingTime += 0.1;
+			// }
 		}
 		else if (this->laundryStatus == LaundryStatus::wet)
 		{
 			if (searchForFreeRack())
 			{
-				this->status = "Client " + std::to_string(id) + " is using drying rack " + std::to_string(occupiedId);
 				useDryingRack();
 			}
-			else
-			{
-				this->status = "Client " + std::to_string(id) + " is waiting for drying rack";
-				this->waitingTime += 0.1;
-			}
+			// else
+			// {
+			// 	this->waitingTime += 0.1;
+			// }
 		}
 		else
 		{
 			laundryCounter++;
-			this->status = "Client " + std::to_string(id) + " is getting their clothes dirty again";
 			getClothesDirty();
 		}
 	}
-}
-
-std::string Client::getStatus()
-{
-	return status;
 }
 
 void Client::useWashingMachine()
@@ -115,7 +105,6 @@ void Client::useWashingMachine()
 
 	laundryStatus = LaundryStatus::wet;
 	freeMachine();
-	status = "Client " + std::to_string(id) + " has freed washing machine " + std::to_string(occupiedId);
 }
 
 void Client::useDryingRack()
@@ -123,7 +112,6 @@ void Client::useDryingRack()
 	std::this_thread::sleep_for(std::chrono::milliseconds(dryingTime));
 	laundryStatus = LaundryStatus::clean;
 	freeRack();
-	status = "Client " + std::to_string(id) + " has freed drying rack " + std::to_string(occupiedId);
 	
 }
 
@@ -131,7 +119,6 @@ void Client::getClothesDirty()
 {
 	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	laundryStatus = LaundryStatus::dirty;
-	this->status = "Client " + std::to_string(id) + " goes to laundry room";
 }
 
 void Client::freeMachine()

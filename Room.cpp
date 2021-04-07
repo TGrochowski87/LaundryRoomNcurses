@@ -44,23 +44,6 @@ void Room::runSimulation()
 	}
 	serviceWorker->start();
 
-	bool isEveryoneReady = false;
-	while (!isEveryoneReady)
-	{
-		for (Client* c : clients)
-		{
-			if (!c->getStatus().empty())
-			{
-				isEveryoneReady = true;
-			}
-			else
-			{
-				isEveryoneReady = false;
-				break;
-			}
-		}
-	}
-
 	showStatusThread = std::make_unique<std::thread>([this]() {
 		refresh();
 
